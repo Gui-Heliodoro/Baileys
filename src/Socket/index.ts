@@ -1,8 +1,13 @@
-import makeWASocket from '@whiskeysockets/baileys'
+import { DEFAULT_CONNECTION_CONFIG } from '../Defaults'
+import { UserFacingSocketConfig } from '../Types'
+import { makeBusinessSocket } from './business'
 
-const sock = makeWASocket({
-    // can provide additional config here
-    browser: Browsers.ubuntu('My App'),
-    printQRInTerminal: true
-})
+// export the last socket layer
+const makeWASocket = (config: UserFacingSocketConfig) => (
+	makeBusinessSocket({
+		...DEFAULT_CONNECTION_CONFIG,
+		...config
+	})
+)
 
+export default makeWASocket
