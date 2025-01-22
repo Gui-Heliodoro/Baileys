@@ -1,39 +1,29 @@
 import makeWASocket, { Browsers } from '@whiskeysockets/baileys';
-import { LocalAuth } from 'whatsapp-web.js';
 
 console.log('Iniciando a aplicação...');
 
-const client = makeWASocket({
+const sock = makeWASocket({
     browser: Browsers.ubuntu('My App'),
-    auth: new LocalAuth(),
     printQRInTerminal: true // Esta linha adiciona a funcionalidade para gerar o QR code no terminal
 });
 
-const saveState = () => {
-    console.log('Estado salvo.');
-};
-
-client.ev.on('creds.update', saveState);
-
-client.ev.on('connection.update', (update: any) => {
-    const { qr, connection, lastDisconnect } = update;
-    if (qr) {
-        console.log('QR code recebido, escaneie por favor!');
-        // O QR code será automaticamente impresso no terminal
-    } else if (connection === 'open') {
+// Adicione eventos adicionais conforme necessário
+sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update;
+    if (connection === 'open') {
         console.log('Cliente está pronto!');
     } else if (connection === 'close' && lastDisconnect) {
         console.log('Cliente foi desconectado', lastDisconnect?.error);
     }
 });
 
-client.ev.on('messages.upsert', async (message: any) => {
+sock.ev.on('messages.upsert', async (message) => {
     console.log('Mensagem recebida:', message);
     const msg = message.messages[0];
     if (msg.message?.conversation === '!ping') {
-        await client.sendMessage(msg.key.remoteJid!, { text: 'pong' });
+        await sock.sendMessage(msg.key.remoteJid!, { text: 'pong' });
     } else {
-        await client.sendMessage(msg.key.remoteJid!, { text: 'Olá! Recebi sua mensagem.' });
+        await sock.sendMessage(msg.key.remoteJid!, { text: 'Olá! Recebi sua mensagem.' });
     }
 });
 
